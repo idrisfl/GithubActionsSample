@@ -1,0 +1,17 @@
+on: [push]
+name: IAC-Infra-Test
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          resourceGroupName: github-actions-deployment-rg
+          template: ./iac/iac-azuredeploy.json
+          parameters: ./iac/iac-dev-parameters.json
