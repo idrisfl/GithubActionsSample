@@ -1,0 +1,2619 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_omega_insights_name": {
+            "defaultValue": "omega-insights",
+            "type": "String"
+        },
+        "sites_engie_dev_app01_name": {
+            "defaultValue": "engie-dev-app01",
+            "type": "String"
+        },
+        "components_omega_insights_name": {
+            "defaultValue": "omega-insights",
+            "type": "String"
+        },
+        "components_engie_dev_app01_name": {
+            "defaultValue": "engie-dev-app01",
+            "type": "String"
+        },
+        "virtualNetworks_engie_dev_vnet01_name": {
+            "defaultValue": "engie-dev-vnet01",
+            "type": "String"
+        },
+        "databaseAccounts_engie_dev_cos01_name": {
+            "defaultValue": "engie-dev-cos01",
+            "type": "String"
+        },
+        "smartdetectoralertrules_failure_anomalies___omega_insights_name": {
+            "defaultValue": "failure anomalies - omega-insights",
+            "type": "String"
+        },
+        "smartdetectoralertrules_failure_anomalies___engie_dev_app01_name": {
+            "defaultValue": "failure anomalies - engie-dev-app01",
+            "type": "String"
+        },
+        "actiongroups_application_insights_smart_detection_externalid": {
+            "defaultValue": "/subscriptions/19cd1198-9512-44a3-ad33-c47ae0d0c93b/resourceGroups/openai/providers/microsoft.insights/actiongroups/application insights smart detection",
+            "type": "String"
+        },
+        "workspaces_DefaultWorkspace_francecentral_externalid": {
+            "defaultValue": "/subscriptions/19cd1198-9512-44a3-ad33-c47ae0d0c93b/resourceGroups/DefaultResourceGroup-francecentral/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-francecentral",
+            "type": "String"
+        },
+        "serverfarms_ASP_OpenAI_8f94_externalid": {
+            "defaultValue": "/subscriptions/19cd1198-9512-44a3-ad33-c47ae0d0c93b/resourceGroups/OpenAI/providers/Microsoft.Web/serverfarms/ASP-OpenAI-8f94",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2020-02-02",
+            "name": "[parameters('components_engie_dev_app01_name')]",
+            "location": "francecentral",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web",
+                "Flow_Type": "Redfield",
+                "Request_Source": "IbizaWebAppExtensionCreate",
+                "RetentionInDays": 90,
+                "WorkspaceResourceId": "[parameters('workspaces_DefaultWorkspace_francecentral_externalid')]",
+                "IngestionMode": "LogAnalytics",
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2020-02-02",
+            "name": "[parameters('components_omega_insights_name')]",
+            "location": "francecentral",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web",
+                "Flow_Type": "Redfield",
+                "Request_Source": "IbizaWebAppExtensionCreate",
+                "RetentionInDays": 90,
+                "WorkspaceResourceId": "[parameters('workspaces_DefaultWorkspace_francecentral_externalid')]",
+                "IngestionMode": "LogAnalytics",
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-06-01",
+            "name": "[parameters('virtualNetworks_engie_dev_vnet01_name')]",
+            "location": "francecentral",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/16"
+                    ]
+                },
+                "dhcpOptions": {
+                    "dnsServers": []
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default')]",
+                        "properties": {
+                            "addressPrefix": "10.1.0.0/24",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.AzureCosmosDB",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ],
+                            "delegations": [
+                                {
+                                    "name": "delegation",
+                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default'), '/delegations/delegation')]",
+                                    "properties": {
+                                        "serviceName": "Microsoft.Web/serverfarms"
+                                    },
+                                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                                }
+                            ],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2023-01-01",
+            "name": "[parameters('sites_omega_insights_name')]",
+            "location": "France Central",
+            "kind": "app,linux",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_omega_insights_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('sites_omega_insights_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[parameters('serverfarms_ASP_OpenAI_8f94_externalid')]",
+                "reserved": true,
+                "isXenon": false,
+                "hyperV": false,
+                "vnetRouteAllEnabled": false,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "linuxFxVersion": "NODE|18-lts",
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": true,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": false,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "4B2351FF1A1BC2A55013819D8F2166AC12D385C78E121D2A2025C7F8FA5017D2",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "publicNetworkAccess": "Enabled",
+                "storageAccountRequired": false,
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('smartdetectoralertrules_failure_anomalies___engie_dev_app01_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
+                "state": "Enabled",
+                "severity": "Sev3",
+                "frequency": "PT1M",
+                "detector": {
+                    "id": "FailureAnomaliesDetector"
+                },
+                "scope": [
+                    "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+                ],
+                "actionGroups": {
+                    "groupIds": [
+                        "[parameters('actiongroups_application_insights_smart_detection_externalid')]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('smartdetectoralertrules_failure_anomalies___omega_insights_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
+                "state": "Enabled",
+                "severity": "Sev3",
+                "frequency": "PT1M",
+                "detector": {
+                    "id": "FailureAnomaliesDetector"
+                },
+                "scope": [
+                    "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+                ],
+                "actionGroups": {
+                    "groupIds": [
+                        "[parameters('actiongroups_application_insights_smart_detection_externalid')]"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2023-09-15",
+            "name": "[parameters('databaseAccounts_engie_dev_cos01_name')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default')]"
+            ],
+            "tags": {
+                "defaultExperience": "Azure Table",
+                "hidden-cosmos-mmspecial": ""
+            },
+            "kind": "GlobalDocumentDB",
+            "identity": {
+                "type": "None"
+            },
+            "properties": {
+                "publicNetworkAccess": "Enabled",
+                "enableAutomaticFailover": false,
+                "enableMultipleWriteLocations": false,
+                "isVirtualNetworkFilterEnabled": true,
+                "virtualNetworkRules": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default')]",
+                        "ignoreMissingVNetServiceEndpoint": false
+                    }
+                ],
+                "disableKeyBasedMetadataWriteAccess": false,
+                "enableFreeTier": true,
+                "enableAnalyticalStorage": false,
+                "analyticalStorageConfiguration": {
+                    "schemaType": "WellDefined"
+                },
+                "databaseAccountOfferType": "Standard",
+                "defaultIdentity": "FirstPartyIdentity",
+                "networkAclBypass": "None",
+                "disableLocalAuth": false,
+                "enablePartitionMerge": false,
+                "enableBurstCapacity": false,
+                "minimalTlsVersion": "Tls12",
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "BoundedStaleness",
+                    "maxIntervalInSeconds": 86400,
+                    "maxStalenessPrefix": 1000000
+                },
+                "locations": [
+                    {
+                        "locationName": "France Central",
+                        "provisioningState": "Succeeded",
+                        "failoverPriority": 0,
+                        "isZoneRedundant": false
+                    },
+                    {
+                        "locationName": "France South",
+                        "provisioningState": "Succeeded",
+                        "failoverPriority": 1,
+                        "isZoneRedundant": false
+                    }
+                ],
+                "cors": [],
+                "capabilities": [
+                    {
+                        "name": "EnableTable"
+                    }
+                ],
+                "ipRules": [
+                    {
+                        "ipAddressOrRange": "83.114.61.109"
+                    },
+                    {
+                        "ipAddressOrRange": "104.42.195.92"
+                    },
+                    {
+                        "ipAddressOrRange": "40.76.54.131"
+                    },
+                    {
+                        "ipAddressOrRange": "52.176.6.30"
+                    },
+                    {
+                        "ipAddressOrRange": "52.169.50.45"
+                    },
+                    {
+                        "ipAddressOrRange": "52.187.184.26"
+                    }
+                ],
+                "backupPolicy": {
+                    "type": "Periodic",
+                    "periodicModeProperties": {
+                        "backupIntervalInMinutes": 240,
+                        "backupRetentionIntervalInHours": 8,
+                        "backupStorageRedundancy": "Geo"
+                    }
+                },
+                "networkAclBypassResourceIds": [],
+                "capacity": {
+                    "totalThroughputLimit": 5000
+                },
+                "keysMetadata": {}
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/degradationindependencyduration')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "degradationindependencyduration",
+                    "DisplayName": "Degradation in dependency duration",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/degradationindependencyduration')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "degradationindependencyduration",
+                    "DisplayName": "Degradation in dependency duration",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/degradationinserverresponsetime')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "degradationinserverresponsetime",
+                    "DisplayName": "Degradation in server response time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/degradationinserverresponsetime')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "degradationinserverresponsetime",
+                    "DisplayName": "Degradation in server response time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/digestMailConfiguration')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "digestMailConfiguration",
+                    "DisplayName": "Digest Mail Configuration",
+                    "Description": "This rule describes the digest mail preferences",
+                    "HelpUrl": "www.homail.com",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/digestMailConfiguration')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "digestMailConfiguration",
+                    "DisplayName": "Digest Mail Configuration",
+                    "Description": "This rule describes the digest mail preferences",
+                    "HelpUrl": "www.homail.com",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/extension_billingdatavolumedailyspikeextension')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_billingdatavolumedailyspikeextension",
+                    "DisplayName": "Abnormal rise in daily data volume (preview)",
+                    "Description": "This detection rule automatically analyzes the billing data generated by your application, and can warn you about an unusual increase in your application's billing costs",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/billing-data-volume-daily-spike.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/extension_billingdatavolumedailyspikeextension')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_billingdatavolumedailyspikeextension",
+                    "DisplayName": "Abnormal rise in daily data volume (preview)",
+                    "Description": "This detection rule automatically analyzes the billing data generated by your application, and can warn you about an unusual increase in your application's billing costs",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/billing-data-volume-daily-spike.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/extension_canaryextension')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_canaryextension",
+                    "DisplayName": "Canary extension",
+                    "Description": "Canary extension",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/extension_canaryextension')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_canaryextension",
+                    "DisplayName": "Canary extension",
+                    "Description": "Canary extension",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/extension_exceptionchangeextension')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_exceptionchangeextension",
+                    "DisplayName": "Abnormal rise in exception volume (preview)",
+                    "Description": "This detection rule automatically analyzes the exceptions thrown in your application, and can warn you about unusual patterns in your exception telemetry.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/abnormal-rise-in-exception-volume.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/extension_exceptionchangeextension')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_exceptionchangeextension",
+                    "DisplayName": "Abnormal rise in exception volume (preview)",
+                    "Description": "This detection rule automatically analyzes the exceptions thrown in your application, and can warn you about unusual patterns in your exception telemetry.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/abnormal-rise-in-exception-volume.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/extension_memoryleakextension')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_memoryleakextension",
+                    "DisplayName": "Potential memory leak detected (preview)",
+                    "Description": "This detection rule automatically analyzes the memory consumption of each process in your application, and can warn you about potential memory leaks or increased memory consumption.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/memory-leak.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/extension_memoryleakextension')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_memoryleakextension",
+                    "DisplayName": "Potential memory leak detected (preview)",
+                    "Description": "This detection rule automatically analyzes the memory consumption of each process in your application, and can warn you about potential memory leaks or increased memory consumption.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/tree/master/SmartDetection/memory-leak.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/extension_securityextensionspackage')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_securityextensionspackage",
+                    "DisplayName": "Potential security issue detected (preview)",
+                    "Description": "This detection rule automatically analyzes the telemetry generated by your application and detects potential security issues.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/application-security-detection-pack.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/extension_securityextensionspackage')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_securityextensionspackage",
+                    "DisplayName": "Potential security issue detected (preview)",
+                    "Description": "This detection rule automatically analyzes the telemetry generated by your application and detects potential security issues.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/application-security-detection-pack.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/extension_traceseveritydetector')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_traceseveritydetector",
+                    "DisplayName": "Degradation in trace severity ratio (preview)",
+                    "Description": "This detection rule automatically analyzes the trace logs emitted from your application, and can warn you about unusual patterns in the severity of your trace telemetry.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/degradation-in-trace-severity-ratio.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/extension_traceseveritydetector')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "extension_traceseveritydetector",
+                    "DisplayName": "Degradation in trace severity ratio (preview)",
+                    "Description": "This detection rule automatically analyzes the trace logs emitted from your application, and can warn you about unusual patterns in the severity of your trace telemetry.",
+                    "HelpUrl": "https://github.com/Microsoft/ApplicationInsights-Home/blob/master/SmartDetection/degradation-in-trace-severity-ratio.md",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/longdependencyduration')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "longdependencyduration",
+                    "DisplayName": "Long dependency duration",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/longdependencyduration')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "longdependencyduration",
+                    "DisplayName": "Long dependency duration",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/migrationToAlertRulesCompleted')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "migrationToAlertRulesCompleted",
+                    "DisplayName": "Migration To Alert Rules Completed",
+                    "Description": "A configuration that controls the migration state of Smart Detection to Smart Alerts",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": false,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": false,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/migrationToAlertRulesCompleted')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "migrationToAlertRulesCompleted",
+                    "DisplayName": "Migration To Alert Rules Completed",
+                    "Description": "A configuration that controls the migration state of Smart Detection to Smart Alerts",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": true,
+                    "IsEnabledByDefault": false,
+                    "IsInPreview": true,
+                    "SupportsEmailNotifications": false
+                },
+                "enabled": false,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/slowpageloadtime')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "slowpageloadtime",
+                    "DisplayName": "Slow page load time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/slowpageloadtime')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "slowpageloadtime",
+                    "DisplayName": "Slow page load time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_engie_dev_app01_name'), '/slowserverresponsetime')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "slowserverresponsetime",
+                    "DisplayName": "Slow server response time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "microsoft.insights/components/ProactiveDetectionConfigs",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[concat(parameters('components_omega_insights_name'), '/slowserverresponsetime')]",
+            "location": "francecentral",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/components', parameters('components_omega_insights_name'))]"
+            ],
+            "properties": {
+                "ruleDefinitions": {
+                    "Name": "slowserverresponsetime",
+                    "DisplayName": "Slow server response time",
+                    "Description": "Smart Detection rules notify you of performance anomaly issues.",
+                    "HelpUrl": "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-proactive-performance-diagnostics",
+                    "IsHidden": false,
+                    "IsEnabledByDefault": true,
+                    "IsInPreview": false,
+                    "SupportsEmailNotifications": true
+                },
+                "enabled": true,
+                "sendEmailsToSubscriptionOwners": true,
+                "customEmails": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2023-06-01",
+            "name": "[concat(parameters('virtualNetworks_engie_dev_vnet01_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_engie_dev_vnet01_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.1.0.0/24",
+                "serviceEndpoints": [
+                    {
+                        "service": "Microsoft.AzureCosmosDB",
+                        "locations": [
+                            "*"
+                        ]
+                    }
+                ],
+                "delegations": [
+                    {
+                        "name": "delegation",
+                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default'), '/delegations/delegation')]",
+                        "properties": {
+                            "serviceName": "Microsoft.Web/serverfarms"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                    }
+                ],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2023-01-01",
+            "name": "[parameters('sites_engie_dev_app01_name')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default')]"
+            ],
+            "kind": "linux,api",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_engie_dev_app01_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('sites_engie_dev_app01_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[parameters('serverfarms_ASP_OpenAI_8f94_externalid')]",
+                "reserved": true,
+                "isXenon": false,
+                "hyperV": false,
+                "vnetRouteAllEnabled": true,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "linuxFxVersion": "DOTNETCORE|8.0",
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": true,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": false,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "4B2351FF1A1BC2A55013819D8F2166AC12D385C78E121D2A2025C7F8FA5017D2",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "publicNetworkAccess": "Enabled",
+                "storageAccountRequired": false,
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default')]",
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/ftp')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/ftp')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/scm')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/scm')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/web')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "linuxFxVersion": "DOTNETCORE|8.0",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$engie-dev-app01",
+                "scmType": "None",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": true,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": true
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetName": "0919d692-04ef-4a87-bcae-11738ffe6062_default",
+                "vnetRouteAllEnabled": true,
+                "vnetPrivatePortsCount": 0,
+                "publicNetworkAccess": "Enabled",
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "FtpsOnly",
+                "preWarmedInstanceCount": 0,
+                "elasticWebAppScaleLimit": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/web')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "linuxFxVersion": "NODE|18-lts",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$omega-insights",
+                "scmType": "None",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": true,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": true
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetRouteAllEnabled": false,
+                "vnetPrivatePortsCount": 0,
+                "publicNetworkAccess": "Enabled",
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "83.114.61.109/32",
+                        "action": "Allow",
+                        "tag": "Default",
+                        "priority": 300
+                    },
+                    {
+                        "ipAddress": "Any",
+                        "action": "Deny",
+                        "priority": 2147483647,
+                        "name": "Deny all",
+                        "description": "Deny all access"
+                    }
+                ],
+                "ipSecurityRestrictionsDefaultAction": "Deny",
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsDefaultAction": "Allow",
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "FtpsOnly",
+                "preWarmedInstanceCount": 0,
+                "elasticWebAppScaleLimit": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/', parameters('sites_engie_dev_app01_name'), '.azurewebsites.net')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ],
+            "properties": {
+                "siteName": "engie-dev-app01",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/', parameters('sites_omega_insights_name'), '.azurewebsites.net')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ],
+            "properties": {
+                "siteName": "omega-insights",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-20T00_21_47_1658859')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-20T09_21_47_0897012')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-20T12_21_47_0620882')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-20T15_21_47_0559270')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-20T18_21_47_0176454')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-20T21_21_46_9797388')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-21T00_21_46_9472985')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-21T09_21_46_8636338')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-21T12_21_46_8396406')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-21T15_21_46_8066714')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-21T18_21_46_7655846')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-21T21_21_46_7513955')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-22T00_21_46_7223430')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-22T09_21_46_6427525')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-22T12_21_46_6397834')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-22T15_21_46_6027973')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-22T18_21_46_5728213')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-22T21_21_46_5358135')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-23T00_21_46_5104369')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-23T09_21_46_8238730')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-23T12_21_46_7666306')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-23T15_21_47_2141740')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-23T18_21_47_1435804')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-23T21_21_47_0760806')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-24T00_21_47_0104938')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-24T09_21_47_3274413')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-24T12_21_47_2638766')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-24T15_21_47_2005908')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-24T18_21_47_1545270')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-24T21_21_47_1063297')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T00_21_47_0535605')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T07_21_46_9638452')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T08_21_46_9851217')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T09_21_46_9383422')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T10_21_46_9286961')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T11_21_46_9200893')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T12_21_46_8935049')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T13_21_46_8859735')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T14_21_46_8694013')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T15_21_46_8598854')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T16_21_46_8393231')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T17_21_46_8217205')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T18_21_46_7921170')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T19_21_46_7854569')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T20_21_46_7668548')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T21_21_46_7541724')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T22_21_46_7443656')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-25T23_21_46_7464913')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T00_21_46_7236253')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T01_21_46_7247687')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T02_21_46_7199199')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T03_21_46_6621195')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T04_21_46_6542933')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T05_21_46_6513965')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T06_21_46_6535537')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T07_21_46_6187702')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T08_21_46_6059904')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T09_21_46_5962794')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T10_21_46_5766363')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T11_21_46_5429820')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T12_21_46_5324049')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T13_21_46_5124039')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T14_21_46_5193860')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T15_21_46_4998783')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T16_21_46_4886673')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T17_21_46_4812061')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T18_21_46_4760011')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T19_21_46_4584625')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T20_21_46_4361812')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T21_21_46_4207178')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T22_21_46_3944517')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-26T23_21_46_3809950')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T00_21_46_3709607')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T01_21_46_3465315')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T02_21_46_3244450')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T03_21_46_3240565')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T04_21_46_2889529')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T05_21_46_2715997')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T06_21_46_2584298')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T07_21_46_2371199')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T08_21_46_2220799')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T09_21_46_2089478')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T10_21_46_1996771')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T11_21_46_1681555')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T12_21_46_1484009')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T13_21_46_1279946')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T14_21_46_1345376')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T15_21_46_1120882')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T16_21_46_0936214')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T17_21_46_0791236')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T18_21_46_0747806')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T19_21_46_0501658')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T20_21_46_0435680')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T21_21_46_0237224')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T22_21_46_0201292')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-27T23_21_46_0011051')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T00_21_46_0133710')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T01_21_45_9863227')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T02_21_45_9876341')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T03_21_45_9566188')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T04_21_45_9421996')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T05_21_45_9402108')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T06_21_45_9186790')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T07_21_45_9067465')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T08_21_45_8872324')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T09_21_45_8702559')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T10_21_45_8527148')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T11_21_45_8279276')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T12_21_45_8196060')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T12_21_45_8196060')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T13_21_45_8078303')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T13_21_45_8078303')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T14_21_45_7875239')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T14_21_45_7875239')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T15_21_45_7659368')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T15_21_45_7659368')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T16_21_45_7396735')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T16_21_45_7396735')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T17_21_45_7409531')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T17_21_45_7409531')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T18_21_45_7283638')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T18_21_45_7283638')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T19_21_45_7135409')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T19_21_45_7135409')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T20_21_45_6788687')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T20_21_45_6788687')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T21_21_45_6610984')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T21_21_45_6610984')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T22_21_45_6493969')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T22_21_45_6493969')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-28T23_21_45_6296243')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-28T23_21_45_6296243')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T00_21_45_6148602')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T00_21_45_6148602')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T01_21_45_6061180')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T01_21_45_6061180')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T02_21_45_5823965')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T02_21_45_5823965')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T03_21_45_5617137')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T03_21_45_5617137')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T04_21_45_5458768')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T04_21_45_5458768')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T05_21_45_5672279')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T05_21_45_5672279')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T06_21_45_5283532')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T06_21_45_5283532')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T07_21_45_5117891')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T07_21_45_5117891')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T08_21_45_4930417')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T08_21_45_4930417')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T09_21_45_5145357')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T09_21_45_5145357')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T10_21_45_4798700')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T10_21_45_4798700')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T11_21_45_4673024')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T11_21_45_4673024')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T12_21_45_4536502')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T12_21_45_4536502')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T13_21_45_4360368')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T13_21_45_4360368')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T14_21_45_4403255')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T14_21_45_4403255')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/2023-12-29T15_21_45_4057839')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_omega_insights_name'), '/2023-12-29T15_21_45_4057839')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_omega_insights_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/virtualNetworkConnections",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('sites_engie_dev_app01_name'), '/0919d692-04ef-4a87-bcae-11738ffe6062_default')]",
+            "location": "France Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_engie_dev_app01_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default')]"
+            ],
+            "properties": {
+                "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_engie_dev_vnet01_name'), 'default')]",
+                "isSwift": true
+            }
+        }
+    ]
+}
