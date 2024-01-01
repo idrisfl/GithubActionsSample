@@ -15,3 +15,16 @@ jobs:
           resourceGroupName: github-actions-deployment-rg
           template: ./iac/iac-azuredeploy.json
           parameters: ./iac/iac-dev-parameters.json
+          deploymentName: github-ilo-test
+
+      - name: Display deployment group operation list
+        run: |
+          az deployment operation group list --resource-group github-actions-deployment-rg --name github-ilo-test
+
+      - name: Display failed operations
+        run: |
+            az deployment operation group list --resource-group github-actions-deployment-rg --name github-ilo-test --query "[?properties.provisioningState=='Failed']"
+
+      - name: Display status message of failed operations
+        run: |
+            az deployment operation group list --resource-group github-actions-deployment-rg --name github-ilo-test --query "[?properties.provisioningState=='Failed'].properties.statusMessage.error"
