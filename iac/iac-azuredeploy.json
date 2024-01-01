@@ -35,15 +35,15 @@
             "type": "String"
         },
         "actiongroups_application_insights_smart_detection_externalid": {
-            "defaultValue": "/subscriptions/19cd1198-9512-44a3-ad33-c47ae0d0c93b/resourceGroups/openai/providers/microsoft.insights/actiongroups/application insights smart detection",
+            "defaultValue": "/subscriptions/79d5a665-6e48-494b-919b-2b68ffee856f/resourceGroups/github-actions-deployment-rg/providers/microsoft.insights/actiongroups/application insights smart detection",
             "type": "String"
         },
         "workspaces_DefaultWorkspace_francecentral_externalid": {
-            "defaultValue": "/subscriptions/19cd1198-9512-44a3-ad33-c47ae0d0c93b/resourceGroups/DefaultResourceGroup-francecentral/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-francecentral",
+            "defaultValue": "/subscriptions/79d5a665-6e48-494b-919b-2b68ffee856f/resourceGroups/github-actions-deployment-rg/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-francecentral",
             "type": "String"
         },
-        "serverfarms_ASP_OpenAI_8f94_externalid": {
-            "defaultValue": "/subscriptions/19cd1198-9512-44a3-ad33-c47ae0d0c93b/resourceGroups/OpenAI/providers/Microsoft.Web/serverfarms/ASP-OpenAI-8f94",
+        "serverfarms_ASP_github_actions_deployment_rg_8f94_externalid": {
+            "defaultValue": "/subscriptions/79d5a665-6e48-494b-919b-2b68ffee856f/resourceGroups/github-actions-deployment-rg/providers/Microsoft.Web/serverfarms/ASP-github-actions-deployment-rg-8f94",
             "type": "String"
         }
     },
@@ -151,7 +151,7 @@
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[parameters('serverfarms_ASP_OpenAI_8f94_externalid')]",
+                "serverFarmId": "[parameters('serverfarms_ASP_github_actions_deployment_rg_8f94_externalid')]",
                 "reserved": true,
                 "isXenon": false,
                 "hyperV": false,
@@ -1012,7 +1012,7 @@
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[parameters('serverfarms_ASP_OpenAI_8f94_externalid')]",
+                "serverFarmId": "[parameters('serverfarms_ASP_github_actions_deployment_rg_8f94_externalid')]",
                 "reserved": true,
                 "isXenon": false,
                 "hyperV": false,
