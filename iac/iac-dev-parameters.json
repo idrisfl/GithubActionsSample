@@ -2,28 +2,28 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "sites_omega_insights_name": {
+        "sites_toto_insights_name": {
             "value": null
         },
-        "sites_engie_dev_app01_name": {
+        "sites_ilo_dev_app01_name": {
             "value": null
         },
-        "components_omega_insights_name": {
+        "components_toto_insights_name": {
             "value": null
         },
-        "components_engie_dev_app01_name": {
+        "components_ilo_dev_app01_name": {
             "value": null
         },
-        "virtualNetworks_engie_dev_vnet01_name": {
+        "virtualNetworks_ilo_dev_vnet01_name": {
             "value": null
         },
-        "databaseAccounts_engie_dev_cos01_name": {
+        "databaseAccounts_ilo_dev_cos01_name": {
             "value": null
         },
-        "smartdetectoralertrules_failure_anomalies___omega_insights_name": {
+        "smartdetectoralertrules_failure_anomalies___toto_insights_name": {
             "value": null
         },
-        "smartdetectoralertrules_failure_anomalies___engie_dev_app01_name": {
+        "smartdetectoralertrules_failure_anomalies___ilo_dev_app01_name": {
             "value": null
         },
         "actiongroups_application_insights_smart_detection_externalid": {
