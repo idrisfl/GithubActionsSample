@@ -39,7 +39,7 @@
             "type": "String"
         },
         "workspaces_DefaultWorkspace_francecentral_externalid": {
-            "defaultValue": "/subscriptions/79d5a665-6e48-494b-919b-2b68ffee856f/resourceGroups/github-actions-deployment-rg/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-francecentral",
+            //"defaultValue": "/subscriptions/79d5a665-6e48-494b-919b-2b68ffee856f/resourceGroups/github-actions-deployment-rg/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-francecentral",
             "type": "String"
         },
         "serverfarms_ASP_github_actions_deployment_rg_8f94_externalid": {
