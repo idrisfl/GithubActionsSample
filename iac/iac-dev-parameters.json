@@ -32,7 +32,7 @@
         "workspaces_DefaultWorkspace_francecentral_externalid": {
             "value": null
         },
-        "serverfarms_ASP_OpenAI_8f94_externalid": {
+        "serverfarms_ASP_github_actions_deployment_rg_8f94_externalid": {
             "value": null
         }
     }
