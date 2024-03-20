@@ -3,6 +3,10 @@ name: Build and Push python generation Docker Image to ACR
 on:
   workflow_dispatch:
     inputs:
+      rgName:
+        description: "Azure Resource Group Name"
+        required: true
+        default: "reflecta-demo-rg"
       acrName:
         description: "Azure Container Registry name"
         required: true
@@ -15,15 +19,6 @@ on:
         description: "Azure Storage Account Name"
         required: true
         default: "streflectademo"
-      # openaiApiKey:
-      #     description: "OpenAI API Key"
-      #     required: true
-      # openaiApiBase:
-      #     description: "OpenAI API Endpoint"
-      #     required: true
-      # azureStorageConnectionString:
-      #     description: "Azure Storage Connection String"
-      #     required: true
       azureStorageQueueName:
         description: "Azure Storage Queue Name"
         required: true
@@ -31,25 +26,28 @@ on:
       azureStorageContainerName:
         description: "Azure Storage Container Name"
         required: true
+        default: "embeddings"
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
         with:
           sparse-checkout: src/reflecta.generation
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - name: Azure login
+        uses: azure/login@v1
         with:
-          python-version: "3.x"
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Display input parameters
         run: |
+          echo "Resource Group Name: ${{ github.event.inputs.rgName }}"
           echo "ACR name: ${{ github.event.inputs.acrName }}"
-          echo "OpenAI API Key: ${{ github.event.inputs.openaiApiKey }}"
-          echo "OpenAI API Base: ${{ github.event.inputs.openaiApiBase }}"
-          echo "Azure Storage Connection String: ${{ github.event.inputs.azureStorageConnectionString }}"
+          echo "OpenAI API Key: ${{ github.event.inputs.openaiInstanceName }}"
+          echo "OpenAI API Base: ${{ github.event.inputs.storageAccountName }}"
           echo "Azure Storage Queue Name: ${{ github.event.inputs.azureStorageQueueName }}"
-          echo "Azure Container Name: ${{ github.event.inputs.azureStorageContainerName }}"
+          echo "Azure Storage Container Name: ${{ github.event.inputs.azureStorageContainerName }}"
