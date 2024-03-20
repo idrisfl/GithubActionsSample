@@ -1,0 +1,47 @@
+name: Build and Push python generation Docker Image to ACR
+
+on:
+  workflow_dispatch:
+    inputs:
+      acrName:
+        description: "ACR name"
+        required: true
+        default: "reflecta-acr"
+      openaiApiKey:
+        description: "OpenAI API Key"
+        required: true
+      openaiApiBase:
+        description: "OpenAI API Base"
+        required: true
+      azureStorageConnectionString:
+        description: "Azure Storage Connection String"
+        required: true
+      azureStorageQueueName:
+        description: "Azure Storage Queue Name"
+        required: true
+      azureContainerName:
+        description: "Azure Container Name"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: src/reflecta.generation
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.x"
+
+      - name: Display input parameters
+        run: |
+            echo "ACR name: ${{ github.event.inputs.acrName }}"
+            echo "OpenAI API Key: ${{ github.event.inputs.openaiApiKey }}"
+            echo "OpenAI API Base: ${{ github.event.inputs.openaiApiBase }}"
+            echo "Azure Storage Connection String: ${{ github.event.inputs.azureStorageConnectionString }}"
+            echo "Azure Storage Queue Name: ${{ github.event.inputs.azureStorageQueueName }}"
+            echo "Azure Container Name: ${{ github.event.inputs.azureContainerName }}"
