@@ -1,0 +1,57 @@
+name: 03 - Build Deploy .NET App Service
+
+on:
+  push:
+    paths:
+      - "src/reflecta.web.api/**"
+  workflow_dispatch:
+
+env:
+  APP_NAME: "app-reflectademo"
+  DOTNET_VERSION: "6.x"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4.1.1
+        with:
+          sparse-checkout: src/reflecta.web.api
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: List all files and folder
+        run: ls -R
+  
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            
+      - name: Restore dependencies
+        working-directory: src/reflecta.web.api/Microsoft.Reflecta.Api
+        run: dotnet restore
+          
+      - name: Build .NET project
+        working-directory: src/reflecta.web.api/Microsoft.Reflecta.Api
+        run: dotnet build --configuration Release
+
+      - name: Publish .NET project
+        working-directory: src/reflecta.web.api/Microsoft.Reflecta.Api
+        run: dotnet publish --configuration Release --output ${{github.workspace}}/publish
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.APP_NAME }}
+          package: ${{github.workspace}}/publish
