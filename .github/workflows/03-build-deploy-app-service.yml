@@ -2,12 +2,14 @@ name: 03 - Build Deploy .NET App Service
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "src/reflecta.web.api/**"
   workflow_dispatch:
 
 env:
-  APP_NAME: "app-reflectademo"
+  APP_NAME: "app-reflectademo1"
   DOTNET_VERSION: "6.x"
 
 permissions:
