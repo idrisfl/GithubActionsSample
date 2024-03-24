@@ -10,7 +10,7 @@ jobs:
       NODE_VERSION: "20.x"
       APP_LOCATION: "src/reflecta.web.front"
       SKIP_API_BUILD: true
-      OUTPUT_LOCATION: "build"
+      OUTPUT_LOCATION: "dist"
 
     steps:
       - uses: actions/checkout@v4.1.1
@@ -23,10 +23,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
+        working-directory: ${{ env.APP_LOCATION }}
         run: npm install
 
-      - name: Build the app
-        run: npm run build
+      # - name: Build the app
+      #   run: npm run build
 
       # Azure Static Web App???
       - name: Deploy to Azure Static Web Apps
