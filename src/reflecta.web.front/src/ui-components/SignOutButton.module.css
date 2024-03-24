@@ -1,0 +1,12 @@
+.loggedUser{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--nj-semantic-size-spacing-8);
+    padding-right: var(--nj-semantic-size-spacing-24);
+    justify-content: center;
+}
+.container{
+    box-shadow: var(--nj-list-group-item-box-shadow);
+    justify-content: space-around;
+}

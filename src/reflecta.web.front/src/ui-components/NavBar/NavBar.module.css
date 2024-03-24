@@ -1,0 +1,17 @@
+div.sideBar {
+  position: absolute;
+}
+
+.navMenu > ul > li > a,
+.navMenu > ul > li > button {
+  gap: 22px;
+}
+div.toggleFoldedSeparator {
+  background: var(--nj-semantic-color-border-neutral-moderate);
+  height: 1px;
+  margin-bottom: 0;
+}
+
+.logo2 {
+    width: 150px;
+}

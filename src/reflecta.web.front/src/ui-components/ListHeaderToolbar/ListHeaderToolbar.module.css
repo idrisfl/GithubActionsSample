@@ -1,0 +1,39 @@
+.container{
+    display: inline-block;
+    min-width: 60px;
+}
+.filterContainer{
+    background-color: var(--nj-semantic-color-background-neutral-secondary-default);
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--nj-semantic-size-spacing-4);
+    padding: var(--nj-semantic-size-spacing-8);
+    box-shadow: var(--nj-semantic-elevation-shadow-4-dp);
+}
+.filterContainer label{
+    justify-content: flex-end;
+}
+.filterValues{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--nj-semantic-size-spacing-4);
+    max-height: 300px;
+    overflow-y: auto;
+}
+.filterHeader > *{
+    display: flex;
+}
+.filterHeader{
+    display: flex;
+    flex-direction: row-reverse;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    gap: var(--nj-semantic-size-spacing-12);
+}
