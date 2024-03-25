@@ -11,3 +11,7 @@ jobs:
       # echo a test message
       - name: Echo test message
         run: echo "Hello, world!"
+
+      - name: Display Azure CLI version
+        run: |
+          az --version          
