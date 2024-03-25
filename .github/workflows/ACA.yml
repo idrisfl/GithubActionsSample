@@ -7,7 +7,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-  steps:
-    - name: Display
-      run: |
-        echo "deploying in ACA"
+    steps:
+      # echo a test message
+      - name: Echo test message
+        run: echo "Hello, world!"
