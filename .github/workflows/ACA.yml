@@ -1,0 +1,13 @@
+name: ACA test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+  steps:
+    - name: Display
+      run: |
+        echo "deploying in ACA"
