@@ -3,6 +3,10 @@ name: ACA test
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: self-hosted
