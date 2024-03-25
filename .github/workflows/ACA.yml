@@ -12,6 +12,10 @@ jobs:
       - name: Echo test message
         run: echo "Hello, world!"
 
-      - name: Display Azure CLI version
-        run: |
-          az --version          
+
+      - name: Azure CLI Action
+        uses: Azure/cli@v2.0.0
+        with:
+          # Specify the script here
+          inlineScript: 
+            az --version          
