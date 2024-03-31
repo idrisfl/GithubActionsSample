@@ -25,7 +25,7 @@ export const handlers = [
   // #region Configuration API
 
   //Get parameter by name
-  http.get(`${import.meta.env.VITE_API_ENDPOINT}/parameter/:name`, async (data) => {
+  http.get(`${window.location.origin}${import.meta.env.VITE_API_ENDPOINT}/parameter/:name`, async (data) => {
     await delay();
     switch (data.params.name) {
       case 'gbus':
@@ -50,7 +50,7 @@ export const handlers = [
   // #endregion
 
   // #region Suggestions API
-  http.post(`${import.meta.env.VITE_API_ENDPOINT}/suggestions`, async (data) => {
+  http.post(`${window.location.origin}${import.meta.env.VITE_API_ENDPOINT}/suggestions`, async (data) => {
     await delay(1000);
     const body = await data.request.json() as {
       for: string;
@@ -103,7 +103,7 @@ export const handlers = [
   // #region Reports API
 
   //Create report
-  // http.post(`${import.meta.env.VITE_API_ENDPOINT}/report`, async (data) => {
+  // http.post(`${window.location.origin}${import.meta.env.VITE_API_ENDPOINT}/report`, async (data) => {
   //   await delay(1000);
   //   const body = await data.request.json();
   //   console.log('request', body)
@@ -118,7 +118,7 @@ export const handlers = [
   // }),
 
   //Get report by id
-  http.get(`${import.meta.env.VITE_API_ENDPOINT}/report/:id`, async (data) => {
+  http.get(`${window.location.origin}${import.meta.env.VITE_API_ENDPOINT}/report/:id`, async (data) => {
     await delay(1000);
     return HttpResponse.json({
       id: data.params.id,
@@ -136,19 +136,19 @@ export const handlers = [
   }),
 
   // Get all reports
-  // http.get(`${import.meta.env.VITE_API_ENDPOINT}/reports`, async () => {
+  // http.get(`${window.location.origin}${import.meta.env.VITE_API_ENDPOINT}/reports`, async () => {
   //   await delay(1000);
   //   return HttpResponse.json(mockReports);
   // }),
 
   //Get favorite reports
-  // http.get(`${import.meta.env.VITE_API_ENDPOINT}/reports/favorites`, async () => {
+  // http.get(`${window.location.origin}${import.meta.env.VITE_API_ENDPOINT}/reports/favorites`, async () => {
   //   await delay(1000);
   //   return HttpResponse.json(mockReports.filter(report => report.isFavorite));
   // }),
 
   //Delete report by id
-  http.delete(`${import.meta.env.VITE_API_ENDPOINT}/report/:id`, async () => {
+  http.delete(`${window.location.origin}${import.meta.env.VITE_API_ENDPOINT}/report/:id`, async () => {
     await delay(1000);
     return HttpResponse.text('');
   }),
@@ -156,7 +156,7 @@ export const handlers = [
   // #endregion
 
   // #region DB API
-  // http.get(`${import.meta.env.VITE_API_ENDPOINT}/incidents/current-db`, async () => {
+  // http.get(`${window.location.origin}${import.meta.env.VITE_API_ENDPOINT}/incidents/current-db`, async () => {
   //   await delay(1000);
   //   return HttpResponse.json({
   //     "UploadedDate": "2024-01-11T10:26:08.105Z",

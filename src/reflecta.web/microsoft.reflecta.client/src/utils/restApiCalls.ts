@@ -101,12 +101,19 @@ export async function uploadIncidentsDB(formData: FormData): Promise<void> {
 // #region Private methods
 const _clients: {[endpoint:string]:AxiosInstance | undefined} = {};
 
-const getClient = async (apiEndpoint?:string) => {
+const getApiEndpoint = (endpoint: string) => {
+  return `${window.location.origin}${endpoint}`;
+};
+
+const getClient = async (apiEndpoint?: string) => {
   const endpoint = apiEndpoint || import.meta.env.VITE_API_ENDPOINT;
-  if (!_clients[endpoint]) {
-    _clients[endpoint] = await getAuthenticatedAxiosInstance(endpoint);
+  const fullEndpoint = getApiEndpoint(endpoint);
+  
+  if (!_clients[fullEndpoint]) {
+    _clients[fullEndpoint] = await getAuthenticatedAxiosInstance(fullEndpoint);
   }
-  return _clients[endpoint];
+  
+  return _clients[fullEndpoint];
 };
 
 const fromDataToReportRequest = (formData: FormData): IReportRequest => {
