@@ -1,4 +1,4 @@
-namespace Microsoft.Reflecta.Api.Common.DTO
+namespace Microsoft.Reflecta.Server.Common.DTO
 {
     public class ReportTitle
     {

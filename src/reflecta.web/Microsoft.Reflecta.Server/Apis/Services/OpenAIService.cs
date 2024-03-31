@@ -2,13 +2,13 @@ using System;
 using System.Threading.Tasks;
 using Azure;
 using Azure.AI.OpenAI; 
-using Microsoft.Reflecta.Api.Common.Models;
-using Microsoft.Reflecta.Api.Common.DTO;
+using Microsoft.Reflecta.Server.Common.Models;
+using Microsoft.Reflecta.Server.Common.DTO;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 
-namespace Microsoft.Reflecta.Api.Apis.Services
+namespace Microsoft.Reflecta.Server.Apis.Services
 {
     public class OpenAIService
     {

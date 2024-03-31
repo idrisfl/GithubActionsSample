@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using System.Collections.Generic;
-using Microsoft.Reflecta.Api.Apis.Services;
-using Microsoft.Reflecta.Api.Common.DTO;
-using Microsoft.Reflecta.Api.Common.Models;
+using Microsoft.Reflecta.Server.Apis.Services;
+using Microsoft.Reflecta.Server.Common.DTO;
+using Microsoft.Reflecta.Server.Common.Models;
 
-namespace Microsoft.Reflecta.Api.Apis.Controllers
+namespace Microsoft.Reflecta.Server.Apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

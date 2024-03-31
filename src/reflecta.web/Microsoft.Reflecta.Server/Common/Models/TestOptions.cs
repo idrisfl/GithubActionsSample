@@ -1,4 +1,4 @@
-﻿namespace Reflecta01.Server.Common.Models
+﻿namespace Microsoft.Reflecta.Server.Common.Models
 {
     public class TestOptions
     {

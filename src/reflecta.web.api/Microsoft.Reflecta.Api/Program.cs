@@ -1,6 +1,6 @@
-using Microsoft.Reflecta.Api.Apis.Services;
-using Microsoft.Reflecta.Api.Common;
-using Microsoft.Reflecta.Api.Common.Models;
+using Microsoft.Reflecta.Server.Apis.Services;
+using Microsoft.Reflecta.Server.Common;
+using Microsoft.Reflecta.Server.Common.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;

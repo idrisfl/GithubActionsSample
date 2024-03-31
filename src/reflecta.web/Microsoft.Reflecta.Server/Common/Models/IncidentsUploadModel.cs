@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Microsoft.Reflecta.Api.Common.Models
+namespace Microsoft.Reflecta.Server.Common.Models
 {
     /// <summary>
     /// The set of fields required to upload the incident database file.

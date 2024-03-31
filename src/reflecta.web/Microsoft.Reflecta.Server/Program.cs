@@ -1,8 +1,7 @@
 using Microsoft.OpenApi.Models;
-using Microsoft.Reflecta.Api.Apis.Services;
-using Microsoft.Reflecta.Api.Common;
-using Microsoft.Reflecta.Api.Common.Models;
-using Reflecta01.Server.Common.Models;
+using Microsoft.Reflecta.Server.Apis.Services;
+using Microsoft.Reflecta.Server.Common;
+using Microsoft.Reflecta.Server.Common.Models;
 using System.Reflection;
 using System.Text.Json;
 

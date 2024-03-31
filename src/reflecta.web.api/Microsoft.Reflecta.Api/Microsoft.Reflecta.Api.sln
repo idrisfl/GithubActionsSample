@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Reflecta.Api", "Microsoft.Reflecta.Api.csproj", "{1B5D5002-811E-459D-AC4F-CE9B52936F6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Reflecta.Server", "Microsoft.Reflecta.Server.csproj", "{1B5D5002-811E-459D-AC4F-CE9B52936F6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

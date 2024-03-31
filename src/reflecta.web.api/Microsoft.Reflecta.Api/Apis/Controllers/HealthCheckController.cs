@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 using System.Reflection;
 
-namespace Microsoft.Reflecta.Api.Apis.Controllers
+namespace Microsoft.Reflecta.Server.Apis.Controllers
 {
     /// <summary>
     /// Health check API Controller.

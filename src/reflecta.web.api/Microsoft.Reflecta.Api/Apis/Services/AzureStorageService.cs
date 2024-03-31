@@ -1,10 +1,10 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Queues;
-using Microsoft.Reflecta.Api.Common.Models;
+using Microsoft.Reflecta.Server.Common.Models;
 using Microsoft.Extensions.Options;
 
-namespace Microsoft.Reflecta.Api.Apis.Services
+namespace Microsoft.Reflecta.Server.Apis.Services
 {
     public class AzureStorageService : IAzureStorageService
     {

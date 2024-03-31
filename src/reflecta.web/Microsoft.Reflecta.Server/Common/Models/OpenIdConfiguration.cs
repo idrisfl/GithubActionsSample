@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Reflecta.Api.Common.Models
+﻿namespace Microsoft.Reflecta.Server.Common.Models
 {
     /// <summary>
     /// The OpenIdConfiguration class.

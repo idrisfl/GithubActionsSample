@@ -1,7 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Microsoft.Reflecta.Api.Common
+namespace Microsoft.Reflecta.Server.Common
 {
     public class LowerCaseDocumentFilter : IDocumentFilter
     {

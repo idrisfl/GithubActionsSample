@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Reflecta.Api.Apis.Services
+﻿namespace Microsoft.Reflecta.Server.Apis.Services
 {
     public interface IAzureStorageService
     {

@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Reflecta.Api.Apis.Services;
-using Microsoft.Reflecta.Api.Common.DTO;
+using Microsoft.Reflecta.Server.Apis.Services;
+using Microsoft.Reflecta.Server.Common.DTO;
 
-namespace Microsoft.Reflecta.Api.Apis.Controllers
+namespace Microsoft.Reflecta.Server.Apis.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

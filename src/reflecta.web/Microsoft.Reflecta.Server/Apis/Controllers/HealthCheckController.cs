@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Reflecta01.Server.Common.Models;
+using Microsoft.Reflecta.Server.Common.Models;
 using System.Net.Mime;
 using System.Reflection;
 
-namespace Microsoft.Reflecta.Api.Apis.Controllers
+namespace Microsoft.Reflecta.Server.Apis.Controllers
 {
     /// <summary>
     /// Health check API Controller.

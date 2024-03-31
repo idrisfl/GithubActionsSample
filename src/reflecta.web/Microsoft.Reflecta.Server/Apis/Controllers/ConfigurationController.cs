@@ -1,11 +1,10 @@
-﻿using Microsoft.Reflecta.Api.Common.DTO;
-using Microsoft.Reflecta.Api.Common.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.Reflecta.Server.Common.DTO;
+using Microsoft.Reflecta.Server.Common.Models;
 using System.Text.Json;
 
-namespace Microsoft.Reflecta.Api.Apis.Controllers
+namespace Microsoft.Reflecta.Server.Apis.Controllers
 {
     /// <summary>
     /// The configuration controller.

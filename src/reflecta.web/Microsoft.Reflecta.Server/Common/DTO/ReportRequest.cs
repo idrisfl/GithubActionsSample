@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Microsoft.Reflecta.Api.Common.DTO
+namespace Microsoft.Reflecta.Server.Common.DTO
 {
     public class ReportRequest
     {
