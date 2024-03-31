@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4.1.1
@@ -42,15 +42,15 @@ jobs:
         run: ls -R
             
       - name: Restore dependencies
-        working-directory: $WORKING_DIRECTORY
+        working-directory: src/reflecta.web
         run: dotnet restore
           
       - name: Build .NET project
-        working-directory: $WORKING_DIRECTORY
+        working-directory: src/reflecta.web
         run: dotnet build --configuration Release
 
       - name: Publish .NET project
-        working-directory: $WORKING_DIRECTORY
+        working-directory: src/reflecta.web
         run: dotnet publish --configuration Release --output ${{github.workspace}}/publish
 
       - name: Deploy to Azure App Service
