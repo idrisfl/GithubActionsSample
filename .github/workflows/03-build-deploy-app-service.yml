@@ -5,12 +5,13 @@ on:
     branches:
       - main
     paths:
-      - "src/reflecta.web.api/**"
+      - "src/reflecta.web/**"
   workflow_dispatch:
 
 env:
-  APP_NAME: "app-reflectademo1"
-  DOTNET_VERSION: "6.x"
+  APP_NAME: "app-reflectademo9"
+  DOTNET_VERSION: "8.x"
+  WORKING_DIRECTORY: "src/reflecta.web"
 
 permissions:
   id-token: write
@@ -23,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
         with:
-          sparse-checkout: src/reflecta.web.api
+          sparse-checkout: src/reflecta.web
 
       - name: Azure login
         uses: azure/login@v2
@@ -41,15 +42,15 @@ jobs:
         run: ls -R
             
       - name: Restore dependencies
-        working-directory: src/reflecta.web.api/Microsoft.Reflecta.Api
+        working-directory: $WORKING_DIRECTORY
         run: dotnet restore
           
       - name: Build .NET project
-        working-directory: src/reflecta.web.api/Microsoft.Reflecta.Api
+        working-directory: $WORKING_DIRECTORY
         run: dotnet build --configuration Release
 
       - name: Publish .NET project
-        working-directory: src/reflecta.web.api/Microsoft.Reflecta.Api
+        working-directory: $WORKING_DIRECTORY
         run: dotnet publish --configuration Release --output ${{github.workspace}}/publish
 
       - name: Deploy to Azure App Service

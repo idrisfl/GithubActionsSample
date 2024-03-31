@@ -1,0 +1,104 @@
+.wrapper{
+    background-color: var(--nj-semantic-color-background-neutral-secondary-default);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: center;
+}
+.form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: var(--nj-semantic-size-spacing-20);
+    margin: var(--nj-semantic-size-spacing-48) 0;
+    gap: var(--nj-semantic-size-spacing-20);
+    max-width: 1024px;
+    background-color: white;
+    margin-bottom: var(--nj-semantic-size-spacing-64);
+    box-shadow: var(--nj-semantic-elevation-shadow-2-dp);
+    width: 100%;
+    align-items: start;
+}
+/* .form{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    padding: 20px;
+    gap: var(--nj-semantic-size-spacing-20);
+    max-width: 937px;
+} */
+.row{
+    display: flex;
+    flex-direction: row;
+    gap: var(--nj-semantic-size-spacing-12);
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.promptRow{
+    flex-grow: 1;
+}
+.promptRow div{
+    flex-grow: 1;
+    height: 100%;
+}
+.promptRow textarea{
+    height: 100%;
+}
+.row.reverse{
+    flex-direction: row-reverse;
+}
+.splitRow{
+    display: flex;
+    flex-direction: column;
+    gap: var(--nj-semantic-size-spacing-8);
+    flex-grow: 1;
+}
+
+.sameRowMarginTop{
+    margin-top: var(--nj-semantic-size-spacing-16);
+}
+.favButton{
+    max-width: 180px;
+}
+span.favButtonIcon{
+    color: inherit;
+}
+.formItem{
+    display: flex;
+    flex-grow: 1;
+    min-width: 200px;
+}
+
+.label{
+    height: var(--nj-fc-label-height);
+    padding: var(--nj-fc-label-pad);
+    color: var(--nj-fc-label-color);
+    font-size: var(--nj-fc-label-font-size);
+}
+label{
+    justify-content: start;
+}
+.multiSelect input{
+    display: none;
+}
+.multiSelect{
+    width: 100%;
+}
+.skeletonContainer{
+    display: flex !important;
+    flex-grow: 1;
+}
+.skeletonContainer.circle{
+    flex-grow: 0;
+}
+.col2{
+    width: 45%;
+}
+.padding8{
+    padding-top: 8px;
+}

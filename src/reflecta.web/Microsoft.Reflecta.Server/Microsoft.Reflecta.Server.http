@@ -1,0 +1,6 @@
+@Microsoft.Reflecta.Server_HostAddress = http://localhost:5272
+
+GET {{Microsoft.Reflecta.Server_HostAddress}}/healthcheck/
+Accept: application/json
+
+###

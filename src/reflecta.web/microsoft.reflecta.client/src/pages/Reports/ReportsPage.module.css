@@ -1,0 +1,142 @@
+.marginTop{
+    min-height: 70px;
+    max-height: 70px;
+    display: flex;
+}
+.wrapper{
+    display: flex;
+    flex-grow: 1;
+    min-height: 50%;
+}
+.outerContainer{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.container{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 50px;
+    height: 100%;
+    padding: 0px 20px 20px 20px;
+    gap: var(--nj-semantic-size-spacing-4);
+}
+/* .container > div{
+    display: flex;
+    flex-grow: 1;
+} */
+.top{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    padding: 0 var(--nj-semantic-size-spacing-4);
+}
+
+.table{
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    min-width: 1024px;
+}
+.row{
+    display: table-row;
+}
+.row > div{
+    display: table-cell;
+    vertical-align: middle;
+}
+.col1{
+    width: 5%;
+}
+.col1 .cellWrapper{
+    justify-content: center;
+}
+.col2{
+    width: 40%;
+}
+.col3{
+    width: 20%;
+}
+.col4{
+    width: 20%;
+}
+.col5{
+    width: 15%;
+}
+.col5 .cellWrapper{
+    justify-content: center;
+}
+.header .cellWrapper{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--nj-semantic-color-background-neutral-secondary-default);
+    min-width: 60px;
+}
+.tableWrapper{
+    overflow-y: auto;
+    display: flex;
+}
+.cellWrapper{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: var(--nj-semantic-size-spacing-2) var(--nj-semantic-size-spacing-4);
+    padding: var(--nj-semantic-size-spacing-2) var(--nj-semantic-size-spacing-4);
+    min-height: 28px;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.cellWrapper > a{
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 100%;
+}
+.reportRow:hover{
+    background-color: var(--nj-semantic-color-background-brand-tertiary-default);
+}
+.row.reverse{
+    flex-direction: row-reverse;
+}
+.splitRow{
+    display: flex;
+    flex-direction: column;
+    gap: var(--nj-semantic-size-spacing-8);
+    flex-grow: 1;
+}
+.row > button{
+    margin-top: var(--nj-semantic-size-spacing-8);
+}
+.favButton{
+    max-width: 180px;
+}
+span.favButtonIcon{
+    color: inherit;
+}
+.formItem{
+    display: flex;
+    flex-grow: 1;
+    min-width: 200px;
+}
+
+.label{
+    height: var(--nj-fc-label-height);
+    padding: var(--nj-fc-label-pad);
+    color: var(--nj-fc-label-color);
+    font-size: var(--nj-fc-label-font-size);
+}
+.multiSelect input{
+    display: none;
+}
+.skeletonContainer{
+    display: flex !important;
+    flex-grow: 1;
+}
+.skeletonContainer.circle{
+    flex-grow: 0;
+}
+div.multiSelectFilter{
+    /* display: none; */
+}
