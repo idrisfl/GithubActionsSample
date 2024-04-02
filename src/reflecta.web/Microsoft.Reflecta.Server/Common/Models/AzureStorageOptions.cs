@@ -39,5 +39,10 @@
         /// Gets or sets the queue name.
         /// </summary>
         public string? QueueName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the storage account name.
+        /// </summary>
+        public string? StorageAccountName { get; set; }
     }
 }

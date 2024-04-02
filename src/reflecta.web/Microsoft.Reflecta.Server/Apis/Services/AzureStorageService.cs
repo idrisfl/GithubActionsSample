@@ -1,8 +1,9 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure.Identity;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Queues;
-using Microsoft.Reflecta.Server.Common.Models;
 using Microsoft.Extensions.Options;
+using Microsoft.Reflecta.Server.Common.Models;
 
 namespace Microsoft.Reflecta.Server.Apis.Services
 {
@@ -47,7 +48,12 @@ namespace Microsoft.Reflecta.Server.Apis.Services
                 throw new ArgumentException("Azure Storage queue name is missing.");
             }
 
-            _blobServiceClient = new BlobServiceClient(options.Value.ConnectionString);
+            if (string.IsNullOrEmpty(options.Value.StorageAccountName))
+            {
+                throw new ArgumentException("Azure Storage account name is missing.");
+            }
+            
+            _blobServiceClient = new BlobServiceClient(new Uri($"https://{options.Value.StorageAccountName}.blob.core.windows.net"), new DefaultAzureCredential());
             _embeddingsContainerName = options.Value.EmbeddingsContainerName;
             _inputFolderName = options.Value.InputFolderName;
             _reportsFolderName = options.Value.ReportsFolderName;
