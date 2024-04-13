@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       NODE_VERSION: "20.x"
       APP_LOCATION: "src/reflecta.web.front"

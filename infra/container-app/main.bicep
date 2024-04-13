@@ -4,6 +4,11 @@ var acrName = '${abbrs.containerRegistryRegistries}${suffix}'
 
 param suffix string
 param location string = resourceGroup().location
+param costCompletionGpt432 string = 'gpt-4-32k-deployment'
+param costCompletionGpt48 string = 'gpt-4-deployment'
+param costPromptGpt432 string = 'gpt-4-32k-deployment'
+param costPromptGpt48 string = 'gpt-4-deployment'
+
 var containerList = ['main', 'filtering', 'generate_embeddings'] // Construct container and images based on this list
 var containerNames = [for (container, i) in containerList: '${replace(container, '_', '-')}-container']
 var imageNames = [for (imageName, i) in containerList: '${acrName}.azurecr.io/reflecta-generation/${imageName}:1.0.0']
@@ -17,10 +22,6 @@ var storageAccountName = '${abbrs.storageStorageAccounts}${suffix}'
 var filteringQueueName = 'input-validation-queue'
 var storageQueueName = 'generation-queue'
 var storageContainerName = 'embeddings'
-param costCompletionGpt432 string = 'gpt-4-32k-deployment'
-param costCompletionGpt48 string = 'gpt-4-deployment'
-param costPromptGpt432 string = 'gpt-4-32k-deployment'
-param costPromptGpt48 string = 'gpt-4-deployment'
 
 module containerApp 'container-app.bicep' = {
   name: containerAppsEnvironmentName

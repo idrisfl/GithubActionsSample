@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  APP_NAME: "app-reflectademo"
+  APP_NAME: "app-reflectapoc2"
   DOTNET_VERSION: "8.x"
   NODE_VERSION: "20"
 
@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4.1.1
