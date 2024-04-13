@@ -18,13 +18,15 @@ namespace Microsoft.Reflecta.Server.Apis.Controllers
         private readonly IAzureStorageService _storageService;
         private readonly string _outputLatestBlob;
         private readonly string _statusBlob;
+        private readonly ILogger<DatabaseController> _logger;
 
         /// <summary>
         /// The constructor for the Incident  API Controller.
         /// </summary>
         /// <param name="storageService">The storage service</param>
         /// <param name="options">Azure Storage options configuration</param>
-        public DatabaseController(IAzureStorageService storageService, IOptions<AzureStorageOptions> options)
+        /// <param name="logger"></param>
+        public DatabaseController(IAzureStorageService storageService, IOptions<AzureStorageOptions> options, ILogger<DatabaseController> logger)
         {
             if (options == null)
             {
@@ -44,6 +46,7 @@ namespace Microsoft.Reflecta.Server.Apis.Controllers
             _storageService = storageService;
             _statusBlob = options.Value.StatusBlob;
             _outputLatestBlob = options.Value.OutputLatestBlob;
+            _logger = logger;
         }
 
         /// <summary>
@@ -104,10 +107,12 @@ namespace Microsoft.Reflecta.Server.Apis.Controllers
         {
             try
             {
+                _logger.LogInformation("Getting the latest uploaded Incident Database file information.");
                 var outputLatestContent = await _storageService.GetBlobContentAsync(_outputLatestBlob);
                 var latestUploadInfoDto = JsonSerializer.Deserialize<LatestUploadInfoDto>(outputLatestContent);
 
                 if (latestUploadInfoDto != null) {
+                    _logger.LogInformation("Getting the status of the latest uploaded Incident Database file.");
                     var statusContent = await _storageService.GetBlobContentAsync(_statusBlob);
                     latestUploadInfoDto.Status = JsonSerializer.Deserialize<StatusObject>(statusContent);
                 }
@@ -116,6 +121,7 @@ namespace Microsoft.Reflecta.Server.Apis.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error getting the latest uploaded Incident Database file information.");
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }

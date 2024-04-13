@@ -2,16 +2,15 @@ name: 03 - Build Deploy .NET App Service
 
 on:
   push:
-    branches:
-      - main
     paths:
       - "src/reflecta.web/**"
+      - .github/workflows/03-build-deploy-app-service.yml
   workflow_dispatch:
 
 env:
-  APP_NAME: "app-reflectademo9"
+  APP_NAME: "app-reflectademo"
   DOTNET_VERSION: "8.x"
-  WORKING_DIRECTORY: "src/reflecta.web"
+  NODE_VERSION: "20"
 
 permissions:
   id-token: write
@@ -19,7 +18,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v4.1.1
@@ -33,18 +32,19 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: List all files and folder
-        run: ls -R
-            
       - name: Restore dependencies
         working-directory: src/reflecta.web
         run: dotnet restore
-          
+
       - name: Build .NET project
         working-directory: src/reflecta.web
         run: dotnet build --configuration Release

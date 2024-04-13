@@ -11,10 +11,12 @@ namespace Microsoft.Reflecta.Server.Apis.Controllers
     public class TitleController : ControllerBase
     {
         private readonly OpenAIService _openAIService;
+        private readonly ILogger<TitleController> _logger;
 
-        public TitleController(OpenAIService openAIService)
+        public TitleController(OpenAIService openAIService, ILogger<TitleController> logger)
         {
             _openAIService = openAIService;
+            _logger = logger;
         }
 
         [HttpPost("generate-title")]
@@ -25,6 +27,7 @@ namespace Microsoft.Reflecta.Server.Apis.Controllers
         {
             try 
             {
+                _logger.LogInformation("Generating title for input: {input}", input);
                 string title = await _openAIService.GenerateTitle(input);
                 return Ok(new ReportTitle { Title = title });
             }

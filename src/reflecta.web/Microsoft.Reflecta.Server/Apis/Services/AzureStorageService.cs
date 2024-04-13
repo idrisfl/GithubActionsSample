@@ -1,9 +1,9 @@
-﻿using Azure.Identity;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Queues;
-using Microsoft.Extensions.Options;
 using Microsoft.Reflecta.Server.Common.Models;
+using Microsoft.Extensions.Options;
+using Azure.Identity;
 
 namespace Microsoft.Reflecta.Server.Apis.Services
 {
@@ -15,17 +15,13 @@ namespace Microsoft.Reflecta.Server.Apis.Services
 
         private readonly string _reportsFolderName;
         private readonly QueueClient _queueClient;
+        private readonly ILogger<IAzureStorageService> _logger;
 
-        public AzureStorageService(IOptions<AzureStorageOptions> options)
+        public AzureStorageService(IOptions<AzureStorageOptions> options, ILogger<IAzureStorageService> logger)
         {
             if (options == null)
             {
                 throw new ArgumentNullException(nameof(options));
-            }
-
-            if (string.IsNullOrEmpty(options.Value.ConnectionString))
-            {
-                throw new ArgumentException("Azure Storage connection string is missing.");
             }
 
             if (string.IsNullOrEmpty(options.Value.EmbeddingsContainerName))
@@ -52,14 +48,28 @@ namespace Microsoft.Reflecta.Server.Apis.Services
             {
                 throw new ArgumentException("Azure Storage account name is missing.");
             }
-            
-            _blobServiceClient = new BlobServiceClient(new Uri($"https://{options.Value.StorageAccountName}.blob.core.windows.net"), new DefaultAzureCredential());
+
+            if (string.IsNullOrEmpty(options.Value.ConnectionString))
+            {
+                throw new ArgumentException("Azure Connection string missing");
+            }
+
+            _blobServiceClient = new BlobServiceClient(options.Value.ConnectionString);
+            //_blobServiceClient = new BlobServiceClient(new Uri($"https://{options.Value.StorageAccountName}.blob.core.windows.net"), new DefaultAzureCredential());
             _embeddingsContainerName = options.Value.EmbeddingsContainerName;
             _inputFolderName = options.Value.InputFolderName;
             _reportsFolderName = options.Value.ReportsFolderName;
             _queueClient = new QueueClient(options.Value.ConnectionString, options.Value.QueueName);
+            _logger = logger;
+            //_queueClient = new QueueClient(new Uri($"https://{options.Value.StorageAccountName}.queue.core.windows.net//{options.Value.QueueName}"), new DefaultAzureCredential());
         }
 
+        /// <summary>
+        /// Uploads the file to the Azure Storage account
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
         public async Task UploadFileAsync(IFormFile file, IDictionary<string, string> metadata = null)
         {
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_embeddingsContainerName);
@@ -79,6 +89,7 @@ namespace Microsoft.Reflecta.Server.Apis.Services
 
         public async Task<string> GetBlobContentAsync(string blobName)
         {
+            _logger.LogInformation($"Getting content of blob '{blobName}' from container '{_embeddingsContainerName}'.");
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_embeddingsContainerName);
             var blobClient = blobContainerClient.GetBlobClient(blobName);
 

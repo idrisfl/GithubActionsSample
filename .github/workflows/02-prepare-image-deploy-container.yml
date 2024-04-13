@@ -1,0 +1,79 @@
+name: 02 - Prepare image and deploy container
+
+env:
+  AZ_RESOURCE_GROUP_NAME: "reflecta-demo-rg"
+  AZ_CONTAINER_APP_TEMPLATE_FILE_PATH: "infra/container-app/main.bicep"
+  AZ_DEPLOYMENT_MODE: "incremental"
+  AZ_SUFFIX: "reflectademo"
+  AZ_CONTAINER_REGISTRY_NAME: "crreflectademo"
+  AZ_ACR_REPOSITORY_NAME: "reflecta-generation"
+
+on:
+  push:
+    paths:
+      - ".github/workflows/02-prepare-image-deploy-container.yml"
+      - "infra/container-app/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        script_name: ["main", "filtering", "generate_embeddings"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to Azure Container Registry
+        id: acr-login
+        run: |
+          acrToken=$(az acr login -n $AZ_CONTAINER_REGISTRY_NAME --expose-token --query 'accessToken' --output tsv)
+
+      - name: Build and Push image
+        run: |
+          az acr build --registry $AZ_CONTAINER_REGISTRY_NAME --platform linux --image $AZ_ACR_REPOSITORY_NAME/${{ matrix.script_name }}:1.0.0 --build-arg SCRIPT_NAME=${{ matrix.script_name }} .
+        working-directory: ./src/reflecta.generation
+
+  deploy_container:
+    needs: deploy
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          sparse-checkout: infra
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # # - name: Login to Azure Container Registry
+      # #   id: acr-login
+      # #   run: |
+      # #     acrToken=$(az acr login -n $AZ_CONTAINER_REGISTRY_NAME --expose-token --query 'accessToken' --output tsv)
+
+      - name: List all folders
+        run: |
+          ls -la
+
+      - name: Deploy container app
+        run: |
+          az deployment group create --resource-group $AZ_RESOURCE_GROUP_NAME --mode $AZ_DEPLOYMENT_MODE --template-file $AZ_CONTAINER_APP_TEMPLATE_FILE_PATH --parameters suffix=$AZ_SUFFIX

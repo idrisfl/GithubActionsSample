@@ -1,0 +1,44 @@
+name: 01 - Deploy infrastructure
+
+env:
+  AZ_RESOURCE_GROUP_NAME: "reflecta-demo-rg"
+  AZ_CORE_TEMPLATE_FILE_PATH: "infra/core/main.bicep"
+  AZ_ROLE_ASSIGNMENTS_TEMPLATE_FILE_PATH: "infra/role-assignments/main.bicep"
+  AZ_DEPLOYMEN_MODE: "incremental"
+  AZ_SUFFIX: "reflectademo"
+  AZ_OPENID_CONFIGURATION_CLIENT_ID: "00000000-0000-0000-0000-000000000000"
+
+on:
+  push:
+    paths:
+      - ".github/workflows/01-deploy-infrastructure.yml"
+      - "infra/core/**"
+      - "infra/role-assignments/**"
+  workflow_dispatch:
+
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy core
+        run: |
+          az deployment group create --resource-group ${{ env.AZ_RESOURCE_GROUP_NAME }} --mode ${{ env.AZ_DEPLOYMEN_MODE }} --template-file ${{ env.AZ_CORE_TEMPLATE_FILE_PATH }} --parameters suffix=${{ env.AZ_SUFFIX }} openIdConfigurationClientId=${{ env.AZ_OPENID_CONFIGURATION_CLIENT_ID }}
+
+      - name: Deploy role assignments
+        run: |
+          az deployment group create --resource-group ${{ env.AZ_RESOURCE_GROUP_NAME }} --mode ${{ env.AZ_DEPLOYMEN_MODE }} --template-file ${{ env.AZ_ROLE_ASSIGNMENTS_TEMPLATE_FILE_PATH }} --parameters suffix=${{ env.AZ_SUFFIX }}

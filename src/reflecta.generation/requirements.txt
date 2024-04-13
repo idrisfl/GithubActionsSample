@@ -1,0 +1,16 @@
+azure-storage-queue
+azure-identity
+azure.storage.blob
+openai==0.28.1
+openai[embeddings]
+pymongo
+openai
+tiktoken
+tqdm
+pandas
+matplotlib
+plotly
+scipy
+scikit-learn 
+openpyxl
+tenacity

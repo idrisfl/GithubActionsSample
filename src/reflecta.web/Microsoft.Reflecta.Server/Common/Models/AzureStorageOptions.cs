@@ -6,11 +6,6 @@
     public class AzureStorageOptions
     {
         /// <summary>
-        /// Gets or sets the connection string.
-        /// </summary>
-        public string? ConnectionString { get; set; }
-
-        /// <summary>
         /// Gets or sets the embeddings container name.
         /// </summary>
         public string? EmbeddingsContainerName { get; set; }
@@ -44,5 +39,7 @@
         /// Gets or sets the storage account name.
         /// </summary>
         public string? StorageAccountName { get; set; }
+
+        public string? ConnectionString { get; set; }
     }
 }
